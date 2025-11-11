@@ -2,21 +2,26 @@ pipeline {
     agent any
 
     environment {
-    VIRTUAL_ENV = 'venv'
-    PYTHON = 'C:\\Users\\doume\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
-}
-
+        PROJECT_DIR = 'jenkins_project'
+        VIRTUAL_ENV = 'venv'
+        // you said this exists:
+        PYTHON = 'C:\\Users\\doume\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+    }
 
     stages {
         stage('Setup') {
             steps {
                 script {
-                    // create venv if it doesn't exist
-                    if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
-                        bat "\"${PYTHON}\" -m venv ${VIRTUAL_ENV}"
+                    // venv will live inside jenkins_project\venv
+                    def venvPath = "${env.WORKSPACE}\\${PROJECT_DIR}\\${VIRTUAL_ENV}"
+
+                    if (!fileExists(venvPath)) {
+                        bat "\"${PYTHON}\" -m venv ${PROJECT_DIR}\\${VIRTUAL_ENV}"
                     }
-                    // activate venv and install requirements
+
+                    // now install requirements from INSIDE jenkins_project
                     bat """
+                    cd ${PROJECT_DIR}
                     call ${VIRTUAL_ENV}\\Scripts\\activate
                     pip install -r requirements.txt
                     """
@@ -27,6 +32,7 @@ pipeline {
         stage('Lint') {
             steps {
                 bat """
+                cd ${PROJECT_DIR}
                 call ${VIRTUAL_ENV}\\Scripts\\activate
                 flake8 app.py
                 """
@@ -36,6 +42,7 @@ pipeline {
         stage('Test') {
             steps {
                 bat """
+                cd ${PROJECT_DIR}
                 call ${VIRTUAL_ENV}\\Scripts\\activate
                 pytest
                 """
