@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        VIRTUAL_ENV = 'venv'
-        // change this to whatever `where python` shows on your machine
-        PYTHON = 'C:\\Users\\doume\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
-    }
+    VIRTUAL_ENV = 'venv'
+    PYTHON = 'C:\\Users\\doume\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+}
+
 
     stages {
         stage('Setup') {
