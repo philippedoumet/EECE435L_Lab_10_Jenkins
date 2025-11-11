@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         VIRTUAL_ENV = 'venv'
+        // change this to whatever `where python` shows on your machine
+        PYTHON = 'C:\\Users\\doume\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
     }
 
     stages {
@@ -11,7 +13,7 @@ pipeline {
                 script {
                     // create venv if it doesn't exist
                     if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
-                        bat "python -m venv ${VIRTUAL_ENV}"
+                        bat "\"${PYTHON}\" -m venv ${VIRTUAL_ENV}"
                     }
                     // activate venv and install requirements
                     bat """
@@ -24,31 +26,25 @@ pipeline {
 
         stage('Lint') {
             steps {
-                script {
-                    bat """
-                    call ${VIRTUAL_ENV}\\Scripts\\activate
-                    flake8 app.py
-                    """
-                }
+                bat """
+                call ${VIRTUAL_ENV}\\Scripts\\activate
+                flake8 app.py
+                """
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    bat """
-                    call ${VIRTUAL_ENV}\\Scripts\\activate
-                    pytest
-                    """
-                }
+                bat """
+                call ${VIRTUAL_ENV}\\Scripts\\activate
+                pytest
+                """
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    echo "Deploying application..."
-                }
+                echo "Deploying application..."
             }
         }
     }
