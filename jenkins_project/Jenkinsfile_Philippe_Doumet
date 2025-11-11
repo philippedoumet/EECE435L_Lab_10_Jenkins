@@ -58,14 +58,17 @@ pipeline {
         }
 
         stage('Security Scan') {
-            steps {
-                bat """
-                cd ${PROJECT_DIR}
-                call ${VIRTUAL_ENV}\\Scripts\\activate
-                bandit -r .
-                """
-            }
-        }
+    steps {
+        bat """
+        cd ${PROJECT_DIR}
+        call ${VIRTUAL_ENV}\\Scripts\\activate
+        set PYTHONIOENCODING=utf-8
+        bandit -r . -f json -o bandit-report.json
+        """
+    }
+}
+
+
 
         stage('Deploy') {
             steps {
