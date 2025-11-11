@@ -4,7 +4,6 @@ pipeline {
     environment {
         PROJECT_DIR = 'jenkins_project'
         VIRTUAL_ENV = 'venv'
-        // you said this exists:
         PYTHON = 'C:\\Users\\doume\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
     }
 
@@ -12,14 +11,10 @@ pipeline {
         stage('Setup') {
             steps {
                 script {
-                    // venv will live inside jenkins_project\venv
                     def venvPath = "${env.WORKSPACE}\\${PROJECT_DIR}\\${VIRTUAL_ENV}"
-
                     if (!fileExists(venvPath)) {
                         bat "\"${PYTHON}\" -m venv ${PROJECT_DIR}\\${VIRTUAL_ENV}"
                     }
-
-                    // now install requirements from INSIDE jenkins_project
                     bat """
                     cd ${PROJECT_DIR}
                     call ${VIRTUAL_ENV}\\Scripts\\activate
@@ -39,7 +34,7 @@ pipeline {
             }
         }
 
-                stage('Test') {
+        stage('Test') {
             steps {
                 bat """
                 cd ${PROJECT_DIR}
@@ -50,10 +45,36 @@ pipeline {
             }
         }
 
+        stage('Coverage') {
+            steps {
+                bat """
+                cd ${PROJECT_DIR}
+                call ${VIRTUAL_ENV}\\Scripts\\activate
+                set PYTHONPATH=%cd%
+                coverage run -m pytest
+                coverage report
+                """
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                bat """
+                cd ${PROJECT_DIR}
+                call ${VIRTUAL_ENV}\\Scripts\\activate
+                bandit -r .
+                """
+            }
+        }
 
         stage('Deploy') {
             steps {
-                echo "Deploying application..."
+                // super simple "deployment"
+                // in a real case you'd copy files or call a script
+                bat """
+                cd ${PROJECT_DIR}
+                echo Deploying application...
+                """
             }
         }
     }
