@@ -39,15 +39,17 @@ pipeline {
             }
         }
 
-        stage('Test') {
+                stage('Test') {
             steps {
                 bat """
                 cd ${PROJECT_DIR}
                 call ${VIRTUAL_ENV}\\Scripts\\activate
+                set PYTHONPATH=%cd%
                 pytest
                 """
             }
         }
+
 
         stage('Deploy') {
             steps {
